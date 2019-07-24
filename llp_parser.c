@@ -224,10 +224,14 @@ static int llp_pick_out_msg_line(llp_parse_queue *parse_q,  char *dest_p, int de
 	{
 		first_len = parse_q->queue_size - parse_q->read_pos;
 		memcpy(dest_p, rd_p, first_len);
-	}
 
-	rd_p = &parse_q->raw_data[0];
-	memcpy((void*)(dest_p + first_len), rd_p, read_len - first_len);
+		rd_p = &parse_q->raw_data[0];
+		memcpy((void*)(dest_p + first_len), rd_p, read_len - first_len);
+	}
+	else
+	{
+		memcpy((void*)dest_p, rd_p, read_len);
+	}
 
 	parse_q->read_pos = read_len - first_len;
 	parse_q->valid_bytes -= read_len;
