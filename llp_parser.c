@@ -18,7 +18,7 @@
 /************************************************************************************
 * Define and Declaration
 *************************************************************************************/
-static char read_block_buffer[LLP_MAX_PARSER_BLOCK_LEN] = {0};
+//static char read_block_buffer[LLP_MAX_PARSER_BLOCK_LEN] = {0};
 static char write_block_buffer[LLP_MAX_PARSER_BLOCK_LEN] = {0};
 static char g_temp_buff[LLP_MAX_PARSER_LINE_LEN + 1] = {0};
 
@@ -253,8 +253,10 @@ int llp_parse_read_frame(llp_parse_queue *parse_q, my_bool is_last)
 {
 	llp_context_struct * llp_cntx_p = llp_get_context();
 	llp_msg_attribut_struct *msg_attr_p = NULL;
-	char *pbuf = NULL;
+	char *pbuf = NULL, *qbuf = NULL;
 	int log_length = 0;
+	int rest_log_length = 0;
+	char *rest_msg_p = NULL;
 	
 	if( parse_q == NULL )
 	{
@@ -266,8 +268,13 @@ int llp_parse_read_frame(llp_parse_queue *parse_q, my_bool is_last)
 	msg_attr_p = &llp_cntx_p->msg_attr;
 	
 	log_length = llp_pick_out_msg_line(parse_q, pbuf, LLP_MAX_PARSER_LINE_LEN);
-
-	llp_parse_msg_line(pbuf, log_length, msg_attr_p);
+	rest_msg_p = llp_parse_msg_line(pbuf, log_length, msg_attr_p);
+	rest_log_length = log_length - (rest_msg_p - pbuf);
+	if (rest_msg_p > pbuf &&  rest_log_length > 0)
+	{	
+		memmove(pbuf, rest_msg_p, rest_log_length);
+		memset((void *)(pbuf + rest_log_length), 0, LLP_MAX_PARSER_LINE_LEN - rest_log_length + 1);
+	}
 
 	return 1;
 }

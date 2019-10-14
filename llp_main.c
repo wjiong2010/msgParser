@@ -143,6 +143,7 @@ int main(int argc, char* argv[])
         err_code = llp_parse_log_file(argv[1]);
     }
 	
+DBG_TRACE("Error! Unknow parse file!!\n");
     return 0;
 }
 
